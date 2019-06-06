@@ -34,19 +34,31 @@ $container['connect_mysqli'] = function ($c) {
 };
 
 $container['encrypt'] = function ($c) {
-    return function($message) {
+    return function($message) use ($c){
         $key = "pk12345678912345";
-		$size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB); 
-		$pad = $size - (strlen($message) % $size); 
-		$message = $message . str_repeat(chr($pad), $pad); 
-		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, ''); 
-		$iv = mcrypt_create_iv (mcrypt_enc_get_iv_size($td), MCRYPT_RAND); 
-		mcrypt_generic_init($td, $key, $iv); 
-		$data = mcrypt_generic($td, $message); 
-		mcrypt_generic_deinit($td); 
-		mcrypt_module_close($td); 
-		$data = base64_encode($data); 
+        $size = openssl_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB); 
+        $pad = $size - (strlen($message) % $size); 
+        $message = $message . str_repeat(chr($pad), $pad); 
+        $td = openssl_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, ''); 
+        $iv = openssl_create_iv (openssl_enc_get_iv_size($td), MCRYPT_RAND); 
+        openssl_generic_init($td, $key, $iv); 
+        $data = openssl_generic($td, $message); 
+        openssl_generic_deinit($td); 
+        openssl_module_close($td); 
+        $data = base64_encode($data); 
         return $data;  
+        // $key = "pk12345678912345";
+        // $size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB); 
+        // $pad = $size - (strlen($message) % $size); 
+        // $message = $message . str_repeat(chr($pad), $pad); 
+        // $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, ''); 
+        // $iv = mcrypt_create_iv (mcrypt_enc_get_iv_size($td), MCRYPT_RAND); 
+        // mcrypt_generic_init($td, $key, $iv); 
+        // $data = mcrypt_generic($td, $message); 
+        // mcrypt_generic_deinit($td); 
+        // mcrypt_module_close($td); 
+        // $data = base64_encode($data); 
+        // return $data;  
     };
 };
 
@@ -195,15 +207,18 @@ $container['notAllowedHandler'] = function ($c) {
 
 $container['phpErrorHandler'] = function ($c) {
     return function ($rqst, $rsp, $error) use ($c) {
-        $error = $c['settings']['errors']["PHPError"];
+        $error2 = $c['settings']['errors']["PHPError"];
         $url = $c['settings']['error_info_url'];
         $response["data"] =  new ArrayObject();
-        $response["error"]["type"] = $error["error_type"];
-        $response["error"]["status_code"] = $error["http_code"];
-        $response["error"]["error_code"] = $error["error_code"];
-        $response["error"]["message"] = "Something went wrong!. Details: ";
-        print_r($c);
-        $response["error"]["more_info"] = "For more info please visit ".$url.$error["error_code"];
+        $response["error"]["type"] = $error2["error_type"];
+        $response["error"]["status_code"] = $error2["http_code"];
+        $response["error"]["error_code"] = $error2["error_code"];
+        $response["error"]["message"] = "Something went wrong!. Details :".$error->getMessage();;
+        if ($c['settings']['displayErrorDetails']){
+            $response["error"]["stacktrace"] = "Exception Stack Trace. Details: ".$error->getTraceAsString();
+            $response["error"]["file"] = "File: ".$error->getFile().", Line: ".$error->getLine();
+        }
+        $response["error"]["more_info"] = "For more info please visit ".$url.$error2["error_code"];
         $rsp = $rsp
         ->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT))
         ->withHeader('Content-Type', 'application/json')

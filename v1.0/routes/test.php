@@ -4,25 +4,17 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app->group('/test', function () use ($api_log) {
     $this->get('', function (Request $rqst, Response $rsp, array $args) {
-        $response = array();
-        
-        //echo "<pre>";
-        //print_r($rqst->getServerParams());
-        //exit;
         $response["message"] = "";
         $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
         $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
         $this->logger->addInfo('in test/echo');
         return $rsp;
-    })->add($api_log);
+    });
     
     $this->get('/echo/{message}', function (Request $rqst, Response $rsp, array $args) {
-        $message = $args['message'];
-        $response = array();
-        $response["message"] = $message;
-        $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
-        $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
-        $this->logger->addInfo('in test/echo');
+        $response["data"] = array();
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", $args['message']);
         return $rsp;
     });
     
@@ -30,46 +22,48 @@ $app->group('/test', function () use ($api_log) {
         $hasMySQL = false; 
         $hasMySQLi = false; 
         $withMySQLnd = false; 
-        $response = array();
-        
+        $response["data"] = array();
+        $message = "";
         if (function_exists('mysql_connect')) {
             $hasMySQL = true;
-            $response["message"].= "(Deprecated) MySQL is installed. ";
-        } else{
-            $response["message"].= "(Deprecated) MySQL is not installed. ";
+            $message .= "(Deprecated) MySQL is installed. ";
+        } else {
+            $message .= "(Deprecated) MySQL is not installed. ";
         }
         if (function_exists('mysqli_connect')) {
             $hasMySQLi = true;
-            $response["message"].= "and the new (improved) MySQL is installed. ";
+            $message .= "and the new (improved) MySQL is installed. ";
         } else{
-            $response["message"].= "and the new (improved) MySQL is not installed. ";
+            $message .= "and the new (improved) MySQL is not installed. ";
         }
         if (function_exists('mysqli_get_client_stats')) {
             $withMySQLnd = true;
-            $response["message"].= "This server is using MySQLnd as the driver."; 
+            $message .= "This server is using MySQLnd as the driver."; 
         } else{
-            $response["message"].= "This server is using libmysqlclient as the driver.";
+            $message .= "This server is using libmysqlclient as the driver.";
         }
-        
-        $response["MySQL (Deprecated)"] = $hasMySQL;
-        $response["MySQL (improved)"] = $hasMySQLi;
-        $response["MySQLnd Driver"] = $withMySQLnd;
-        
-        $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
-        $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
-        $this->logger->addInfo('in test/server_configuration');
+
+        $response["data"]["MySQL (Deprecated)"] = $hasMySQL;
+        $response["data"]["MySQL (improved)"] = $hasMySQLi;
+        $response["data"]["MySQLnd Driver"] = $withMySQLnd;
+
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", $message);
+        return $rsp;        
     });
    
+
     $this->get('/encryption/{message}', function (Request $rqst, Response $rsp, array $args) {  
-        $response = array();
-        $response["message_original"] =  $args['message'];
+        $response["data"] = array();
+        $response["data"]["message_original"] =  $args['message'];
         $encrypt = $this->encrypt;
-        $response["message_encrypted"] = $encrypt($args['message']);
-        $decrypt = $this->decrypt;
-        $response["message_decrypted"] = $decrypt($encrypt($args["message"]));
-        $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
-        $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
-        $this->logger->addInfo('in test/encryption');
+        $response["data"]["message_encrypted"] = $encrypt($args['message']);
+        // $decrypt = $this->decrypt;
+        // $response["data"]["message_decrypted"] = $decrypt($encrypt($args["message"]));
+
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Encryption Successful");
+        return $rsp;
     });
     
     $this->get('/encrypt/{message}', function (Request $rqst, Response $rsp, array $args) {  

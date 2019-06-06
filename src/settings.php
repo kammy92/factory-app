@@ -5,8 +5,8 @@ return [
         'blank_nulls' => false, 
         // Database settings
         'db' => [
-            'user' => 'root',
-            'pass' => '',
+            'user' => 'karman',
+            'pass' => 'user',
             'host' => 'localhost',
             'name' => 'factory',
         ],
@@ -124,6 +124,11 @@ return [
         ],
         'success_info_url' => 'https://factory-app-cammy92.c9users.io/slim_final/',
         'success' => [
+            'TestSuccessful' => [
+                'success_type' => 'TestSuccessful',
+                'success_code' => 0000,
+                'http_code' => 200
+            ],
             'LoginSuccessful' => [
                 'success_type' => 'LoginSuccessful',
                 'success_code' => 1234,
