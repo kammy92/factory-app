@@ -5,11 +5,17 @@ return [
         'blank_nulls' => false, 
         // Database settings
         'db' => [
-            'user' => 'karman',
-            'pass' => 'user',
+            'user' => 'root',
+            'pass' => 'root',
             'host' => 'localhost',
             'name' => 'factory',
         ],
+//        'db2' => [
+//            'user' => 'karman',
+//            'pass' => 'user',
+//            'host' => 'localhost',
+//            'name' => 'factory',
+//        ],
         // PHPMailer settingss
         'phpmailer' => [
             'CharSet' => 'UTF-8',
@@ -28,7 +34,7 @@ return [
         ],
         
         'logs' => [
-            'api_log' => true,
+            'api_log' => false,
             'api_log_level' => 2, // 1=> Basic Details (Only API details), 2=> Basic + Request Body (API Details and Request Body) 3=> Few Details (Request Details along with the API Details), 2=> All Detials (Request and Response and API Details) 
             'api_limit' => false,
             'api_limit_value' => 20,
