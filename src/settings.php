@@ -34,12 +34,12 @@ return [
         ],
         
         'logs' => [
-            'api_log' => false,
+            'api_log' => true,
             'api_log_level' => 2, // 1=> Basic Details (Only API details), 2=> Basic + Request Body (API Details and Request Body) 3=> Few Details (Request Details along with the API Details), 2=> All Detials (Request and Response and API Details) 
             'api_limit' => false,
             'api_limit_value' => 20,
         ],
-        
+        'postman_url' => "https://www.getpostman.com/collections/3b9cb98366f728ff4c24",
         'error_info_url' => 'https://factory-app-cammy92.c9users.io/slim_final/',
         'errors' => [
             'MySQLException' => [

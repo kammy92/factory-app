@@ -4,10 +4,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app->group('/test', function () use ($api_log) {
     $this->get('', function (Request $rqst, Response $rsp, array $args) {
-        $response["message"] = "";
-        $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
-        $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
-        $this->logger->addInfo('in test/echo');
+        $response["data"] = array();
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
         return $rsp;
     });
     
@@ -18,7 +17,7 @@ $app->group('/test', function () use ($api_log) {
         return $rsp;
     });
     
-    $this->get('/server_configuration', function (Request $rqst, Response $rsp, array $args) {  
+    $this->get('/server-configuration', function (Request $rqst, Response $rsp, array $args) {  
         $hasMySQL = false; 
         $hasMySQLi = false; 
         $withMySQLnd = false; 
