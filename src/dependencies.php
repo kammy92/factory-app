@@ -33,6 +33,18 @@ $container['connect_mysqli'] = function ($c) {
     
 };
 
+$container['generate_token'] = function ($c) {
+    return function($user_id, $user_name, $datetime, $expiry) use ($c){
+        try {
+            return substr(md5($user_id.$user_name.$datetime.$expiry).sha1($expiry.$datetime.$user_id.$user_name), 10,50);
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "TokenGenerateError", "Error occurred while generating Token.", $e);
+            return $rsp;
+        }
+    };
+};
+
 $container['encrypt'] = function ($c) {
     return function($message) use ($c){
         $key = "pk12345678912345";
@@ -172,7 +184,7 @@ $container['notFoundHandler'] = function ($c) {
         $response["error"]["type"] = $error["error_type"];
         $response["error"]["status_code"] = $error["http_code"];
         $response["error"]["error_code"] = $error["error_code"];
-        $response["error"]["message"] = "This API doesn't exist. Please check your URL again"; 
+        $response["error"]["message"] = "This API endpoint doesn't exist. Please check your URL again"; 
         $response["error"]["more_info"] = "For more info please visit ".$url.$error["error_code"];
         $rsp = $rsp
         ->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT))

@@ -39,7 +39,7 @@ $user_auth = function ($rqst, $rsp, $next) {
                         $rsp = $next($rqst, $rsp);
                     } else {
                         $print=$this->error_response;
-                        $rsp = $print($rsp, "UserTokenInvalid", "Access Denied. User token is not valid.");
+                        $rsp = $print($rsp, "UserTokenInvalid", "Access Denied. User token is not valid or expired.");
                         return $rsp;
                     }
                  } else {

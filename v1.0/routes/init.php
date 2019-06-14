@@ -15,7 +15,8 @@ $app->group('/app', function () use ($user_auth) {
 			$rsp = $print($rsp, "ValidationError", "Error occurred in Validation. Details: ".$e->getMessage(), $e);
   			return $rsp;
   		}
-  		
+  	
+  	
   		$app_version = $rqst->getParam("app_version");
   		$firebase = $rqst->getParam("firebase") ? $rqst->getParam("firebase") : "";
 		$device_id = $rqst->hasHeader("device-id") ? $rqst->getHeader("device-id")[0] : "";

@@ -21,8 +21,8 @@ return [
             'CharSet' => 'UTF-8',
 			'Host' => 'smtp.gmail.com',
 			'SMTPAuth' => true,
-			'Username' => 'some_email@gmail.com',
-			'Password' => 'password',
+			'Username' => 'actipatient@gmail.com',
+			'Password' => 'actipatient@12345',
 			'SMTPSecure' => 'tls',
 			'Port' => 587,
         ],
@@ -31,8 +31,7 @@ return [
             'name' => 'slim-app',
             'path' => isset($_ENV['docker']) ? 'php://stdout' : __DIR__ . '/../logs/app.log',
             'level' => \Monolog\Logger::DEBUG,
-        ],
-        
+        ],    
         'logs' => [
             'api_log' => true,
             'api_log_level' => 2, // 1=> Basic Details (Only API details), 2=> Basic + Request Body (API Details and Request Body) 3=> Few Details (Request Details along with the API Details), 2=> All Detials (Request and Response and API Details) 
@@ -42,6 +41,11 @@ return [
         'postman_url' => "https://www.getpostman.com/collections/3b9cb98366f728ff4c24",
         'error_info_url' => 'https://factory-app-cammy92.c9users.io/slim_final/',
         'errors' => [
+            'TokenGenerateError' => [
+                'error_type' => 'TokenGenerateError',
+                'error_code' => 1234,
+                'http_code' => 500
+            ],
             'MySQLException' => [
                 'error_type' => 'MySQLException',
                 'error_code' => 1234,

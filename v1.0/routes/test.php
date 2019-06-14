@@ -2,9 +2,27 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+use \Firebase\JWT\JWT;
+
 $app->group('/test', function () use ($api_log) {
     $this->get('', function (Request $rqst, Response $rsp, array $args) {
         $response["data"] = array();
+        
+        $token_payload = [
+            'iss' => 'https://github.com/auth0/php-jwt-example',
+            'sub' => '123456',
+            'name' => 'John Doe',
+            'email' => 'info@auth0.com'
+        ];
+        // This is your client secret
+        $key = '__test_secret__';
+        $key2 = '__test_secret__';
+        // This is your id token
+        $jwt = JWT::encode($token_payload, base64_decode(strtr($key, '-_', '+/')), 'HS256');
+        $decoded = JWT::decode($jwt, base64_decode(strtr($key2, '-_', '+/')), ['HS256']);
+        $response["data"]["jwt"] = $jwt;
+        $response["data"]["decoded"] = $decoded;
+
         $print = $this->data_response;
         $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
         return $rsp;
