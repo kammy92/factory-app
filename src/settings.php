@@ -4,19 +4,36 @@ return [
         'displayErrorDetails' => true, // set to false in production
         'blank_nulls' => false, 
         // Database settings
-        'db' => [
-            'user' => 'root',
-            'pass' => 'root',
-            'host' => 'localhost',
-            'name' => 'factory',
-        ],
+        'db' => 
+            (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) ? array( 
+                'user' => 'karman',
+                'pass' => 'user',
+                'host' => 'localhost',
+                'name' => 'factory') : (strpos($_SERVER['HTTP_HOST'], 'codenvy') !== false) ? array(
+
+                'user' => 'root',
+                'pass' => 'root',
+                'host' => 'localhost',
+                'name' => 'factory') : array(
+                
+                'user' => 'root',
+                'pass' => 'root',
+                'host' => 'localhost',
+                'name' => 'factory'),
+       
+//        'db' => [
+//            'user' => 'root',
+//            'pass' => 'root',
+//            'host' => 'localhost',
+//            'name' => 'factory',
+//        ],
 //        'db2' => [
 //            'user' => 'karman',
 //            'pass' => 'user',
 //            'host' => 'localhost',
 //            'name' => 'factory',
 //        ],
-        // PHPMailer settingss
+        // PHPMailer settings
         'phpmailer' => [
             'CharSet' => 'UTF-8',
 			'Host' => 'smtp.gmail.com',

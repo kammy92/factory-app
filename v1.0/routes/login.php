@@ -98,7 +98,7 @@ function getUserDetails($device_id, $device_type, $login_username) {
 function generateNewToken($generate_token, $device_id, $device_type, $user_id, $user_name, $datetime) {
 	global $mysqli;
 	$expiry = date('Y-m-d H:i:s', strtotime('+4 week', strtotime($datetime)));
-	$generate_token = $this->generate_token;
+	$generate_token;
 	$token = $generate_token($user_id, $user_name, $datetime, $expiry);
 	$query = ["INSERT INTO `tbl_user_logins`(`lgn_usr_id`, `lgn_device_id`, `lgn_device_type`, `lgn_token`, `lgn_token_status`, `lgn_token_valid_from`, `lgn_token_valid_till`, `lgn_created_at`) VALUES (?,?,?,?,1,?,?,?)", "SELECT * FROM `tbl_user_logins` WHERE `lgn_id` = ?"];
 	$values = [$user_id, $device_id, $device_type, $token, $datetime, $expiry, $datetime];

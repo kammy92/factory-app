@@ -16,7 +16,8 @@ $app->group('/app', function () use ($user_auth) {
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
 				return $rsp;
 			}
-
+			$data["offset"] = $offset;
+			$data["limit"] = $limit;
 			if(sizeof($data["customers"]) > 0){
 				$message = "Customers fetched successfully.";
 			} else {
