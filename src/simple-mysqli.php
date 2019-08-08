@@ -55,7 +55,6 @@ class SimpleMySQLi {
 			$username = $settings["settings"]["db"]['user'];
 			$password = $settings["settings"]["db"]['pass'];
 		}
-		
 		$this->defaultFetchType = $defaultFetchType;
 
 		if(!in_array($defaultFetchType, self::ALLOWED_FETCH_TYPES_BOTH, true)) { //check if it is an allowed fetch type

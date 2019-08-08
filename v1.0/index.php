@@ -9,6 +9,7 @@ require '../src/validations.php';
 $settings = require '../src/settings.php';
 
 $user_id;
+$device_timezone;
 
 $app = new \Slim\App($settings);
 require '../src/dependencies.php';

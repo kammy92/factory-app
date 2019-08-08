@@ -21,11 +21,13 @@ $app->group('/app', function () use ($user_auth) {
   		$firebase = $rqst->getParam("firebase") ? $rqst->getParam("firebase") : "";
 		$device_id = $rqst->hasHeader("device-id") ? $rqst->getHeader("device-id")[0] : "";
 		$device_type = strtoupper($rqst->hasHeader("device-type")) ? (in_array(strtoupper($rqst->getHeader("device-type")[0]), ["ANDROID", "IOS", "WEB"]) ? strtoupper($rqst->getHeader("device-type")[0]) : "") : "";
-
+		$device_details = $rqst->hasHeader("device-details") ? $rqst->getHeader("device-details")[0] : "";
+		$device_timezone = $rqst->hasHeader("device-timezone") ? $rqst->getHeader("device-timezone")[0] : "+00:00";
+	
 		$response["data"] = array();
 	
 		try {
-			$update = updateUserLoginDetails($user_id, $device_id, $device_type, $app_version, $firebase, $this->utc_time);
+			$update = updateUserLoginDetails($user_id, $device_id, $device_type, $device_details, $device_timezone, $app_version, $firebase, $this->utc_time);
 		    $result = getCurrentAppVersion($device_type);
             if($result["app_version"] > $app_version){
             	$data["update"]["update_available"] = 1;
@@ -50,10 +52,10 @@ $app->group('/app', function () use ($user_auth) {
 });
 
 
-function updateUserLoginDetails($user_id, $device_id, $device_type, $app_version, $firebase, $datetime){
+function updateUserLoginDetails($user_id, $device_id, $device_type, $device_details, $device_timezone, $app_version, $firebase, $datetime){
 	global $mysqli;
-	$query = "UPDATE `tbl_user_logins` SET `lgn_firebase` = ?, `lgn_firebase_status` = 1, `lgn_app_version` = ?, `lgn_last_login` = ?, `lgn_modified_at` = ? WHERE `lgn_usr_id` = ? AND `lgn_device_id` = ? AND `lgn_device_type` = ?";
-	$result = $mysqli->query($query, [$firebase, $app_version, $datetime, $datetime, $user_id, $device_id, $device_type], "ssssiss");
+	$query = "UPDATE `tbl_user_logins` SET `lgn_firebase` = ?, `lgn_firebase_status` = 1, `lgn_app_version` = ?, `lgn_last_login` = ?, `lgn_modified_at` = ?, `lgn_device_details` = ?, `lgn_device_timezone` = ? WHERE `lgn_usr_id` = ? AND `lgn_device_id` = ? AND `lgn_device_type` = ? AND `lgn_token_status` = 1";
+	$result = $mysqli->query($query, [$firebase, $app_version, $datetime, $datetime, $device_details, $device_timezone, $user_id, $device_id, $device_type], "ssssssiss");
 	if($result->affectedRows() > 0){
 		return 1;
 	} else {

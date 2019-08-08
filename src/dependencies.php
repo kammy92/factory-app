@@ -27,7 +27,7 @@ $container['connect_mysqli'] = function ($c) {
         return $mysqli;
     } catch(Exception $e) {
         $print=$this->error_response;
-		$rsp = $print($rsp, 500, 2323, "MySQLException", "Error occurred in MySQL. Details=> ".$e->getMessage(), "http://google.com/2323", true, "mysqlexception");
+		$rsp = $print($rsp, 500, 2323, "MySQLException", "Error occurred in MySQL. Details=> ".$e->getMessage(), "http://google.com/2323");
 		return $rsp;
     }
     
@@ -91,12 +91,18 @@ $container['decrypt'] = function ($c) {
 };
 
 $container['data_response'] = function ($c) {
-    return function($rsp, $response, $success_type, $success_message = '', $more_info = '', $status_code = 0, $log = false, $log_message = '') use ($c){
+    return function($rsp, $response, $success_type, $success_message = '', $more_info = '', $status_code = 0, $log_message = '') use ($c){
         $success = $c['settings']['success']["$success_type"];
         $url = $c['settings']['success_info_url'];
         if($c['settings']['blank_nulls']){ 
             array_walk_recursive($response, function (&$item, $key) {$item = null === $item ? '' : $item;});
         }
+        // array_walk_recursive($response, function (&$item, $key) {
+        //     if ((DateTime::createFromFormat('Y-m-d H:i:s', $item) !== FALSE)){
+        //      //   $dt = new DateTime(strtotime($item, "+05:30")); $item = $dt->format("Y-m-d H:i:s");
+        //     } else {
+        //         $item = $item;
+        //     });
         
         $response["error"] = new ArrayObject();
         $response["data"]["success_type"] = $success["success_type"];
@@ -111,7 +117,7 @@ $container['data_response'] = function ($c) {
             ->withHeader('Success-Type', $response["data"]["success_type"])
             ->withStatus($response["data"]["status_code"]);
         
-        if($log){
+        if($c['settings']["logs"]["monolog_log"]){
             $c->logger->addInfo($log_message);
         }
         return $rsp;
@@ -119,7 +125,7 @@ $container['data_response'] = function ($c) {
 };
 
 $container['error_response'] = function ($c) {
-    return function($rsp, $error_type, $message = '', $exception = '', $more_info = '', $status_code = 0, $log = false, $log_message = '') use ($c) {
+    return function($rsp, $error_type, $message = '', $exception = '', $more_info = '', $status_code = 0, $log_message = '') use ($c) {
         $error = $c['settings']['errors']["$error_type"];
         $url = $c['settings']['error_info_url'];
         $response["data"] =  new ArrayObject();
@@ -144,7 +150,7 @@ $container['error_response'] = function ($c) {
         ->withHeader('Content-Type', 'application/json')
         ->withStatus($response["error"]["status_code"]);
 
-        if($log){
+        if($c['settings']["logs"]["monolog_log"]){
             $c->logger->addInfo($log_message);
         }
         return $rsp;

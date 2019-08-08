@@ -28,6 +28,35 @@ $app->group('/test', function () use ($api_log) {
         return $rsp;
     });
     
+    $this->get('/jwt', function (Request $rqst, Response $rsp, array $args) {
+        $response["data"] = array();
+        
+        $token_payload = [
+            'user_id' => 'https://github.com/auth0/php-jwt-example',
+            'user_name' => '123456',
+            'created_at' => 'John Doe',
+            'expire_at' => 'info@auth0.com'
+        ];
+        // This is your client secret
+        $key = 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1';
+        $key2 = 'fd75d2941232c9a9fec01bb6217fff0dcc45973c12ebc637a1';
+        // This is your id token
+        try{
+            $jwt = JWT::encode($token_payload, base64_decode(strtr($key, '-_', '+/')), 'HS256');
+            $decoded = JWT::decode($jwt, base64_decode(strtr($key2, '-_', '+/')), ['HS256']);
+            $response["data"]["jwt"] = $jwt;
+            $response["data"]["decoded"] = $decoded;
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "UserTokenInvalid", "Access Denied. User token is not valid or expired.");
+            return $rsp;
+        }
+      
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
+        return $rsp;
+    });
+    
     $this->get('/echo/{message}', function (Request $rqst, Response $rsp, array $args) {
         $response["data"] = array();
         $print = $this->data_response;

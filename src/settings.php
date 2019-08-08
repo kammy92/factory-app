@@ -1,23 +1,26 @@
 <?php
+// if (strpos($_SERVER['HTTP_HOST'], 'codenvy') !== false){
+//     echo "true";
+// } else {
+//     echo "fasle";
+// }
+//         exit;
+$tmp = "localhost";
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
         'blank_nulls' => false, 
         // Database settings
         'db' => 
-            (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) ? array( 
-                'user' => 'karman',
-                'pass' => 'user',
-                'host' => 'localhost',
-                'name' => 'factory') : (strpos($_SERVER['HTTP_HOST'], 'codenvy') !== false) ? array(
-
+            strpos($_SERVER["HTTP_HOST"], 'localhost') !== false ? array( 
                 'user' => 'root',
-                'pass' => 'root',
+                'pass' => '',
                 'host' => 'localhost',
                 'name' => 'factory') : array(
                 
-                'user' => 'root',
-                'pass' => 'root',
+                'user' => 'root3',
+                'pass' => 'root3',
                 'host' => 'localhost',
                 'name' => 'factory'),
        
@@ -50,6 +53,7 @@ return [
             'level' => \Monolog\Logger::DEBUG,
         ],    
         'logs' => [
+            'monolog_log' => false,
             'api_log' => true,
             'api_log_level' => 2, // 1=> Basic Details (Only API details), 2=> Basic + Request Body (API Details and Request Body) 3=> Few Details (Request Details along with the API Details), 2=> All Detials (Request and Response and API Details) 
             'api_limit' => false,
