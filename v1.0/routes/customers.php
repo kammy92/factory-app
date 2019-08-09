@@ -10,7 +10,7 @@ $app->group('/app', function () use ($user_auth) {
 	    	try {
 	    		$offset = $rqst->getParam("offset") ? $rqst->getParam("offset") : 0;
 	    		$limit = $rqst->getParam("limit") ? $rqst->getParam("limit") : 100;
-				$data["customers"] = getAllActiveCustomers($offset, $limit);
+	    		$data["customers"] = getAllActiveCustomers($offset, $limit);
 			} catch(Exception $e) {
 				$print=$this->error_response;
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
@@ -195,9 +195,12 @@ $app->group('/app', function () use ($user_auth) {
 });
 
 
-function getAllActiveCustomers($offset, $limit){
+function getAllActiveCustomers($offset, $limit){//, $convert_timezone){
 	global $mysqli;
-	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, `cstmr_created_at` FROM `tbl_customers` WHERE `cstmr_status` = 1 ORDER BY `cstmr_name` ASC LIMIT ?,?";
+	//$convert_timezone = new convert_timezone()
+	//echo "convert string : ".convert_timezone('cstmr_created_at', 'created_at');
+	//exit;
+	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` = 1 ORDER BY `cstmr_name` ASC LIMIT ?,?";
 	return $mysqli->query($query, [$offset, $limit], "ii")->fetchAll("assoc");
 }
 

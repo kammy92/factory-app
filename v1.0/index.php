@@ -14,7 +14,10 @@ $device_timezone;
 $app = new \Slim\App($settings);
 require '../src/dependencies.php';
 require '../src/middleware.php';
-
+$convert_timezone;
+if (!$settings['settings']['utc_timezone'] && $settings['settings']['tz_conversion_method'] == 2) {
+//	$convert_timezone = $app->convert_timezone("aaa","bbb");
+}
 
 try{
     $mysqli = new SimpleMySQLi();

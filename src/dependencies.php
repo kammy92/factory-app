@@ -117,7 +117,7 @@ $container['data_response'] = function ($c) {
         $url = $c['settings']['success_info_url'];
 
         array_walk_recursive($response, function (&$item, $key) use ($c) {
-            if (!$c['settings']['utc_timezone']) {
+            if (!$c['settings']['utc_timezone'] && $c['settings']['tz_conversion_method'] == 1) {
                 if ((DateTime::createFromFormat('Y-m-d H:i:s', $item) !== FALSE)){
                     global $device_timezone;
                     $date = new DateTime($item, new DateTimeZone("UTC"));
@@ -280,4 +280,23 @@ $container['utc_time'] = function ($c) {
    	$dt = new DateTime();
 	$newdt = $dt->format('Y-m-d H:i:s');
 	return $newdt;
+};
+
+function convert_timezone ($coloumn = '', $alias = ''){
+        global $device_timezone;
+//        if (!$c['settings']['utc_timezone'] && $c['settings']['tz_conversion_method'] == 2){
+            return "CONVERT_TZ(`".$coloumn."`,'+00:00','".$device_timezone."') AS `".$alias."`";    
+//        } else {
+//            return "`".$coloumn."` AS `".$alias."`";
+//        }
+            
+}
+
+$container['convert_timezone'] = function ($c) {
+    return function ($coloumn = '', $alias = '') use ($c) {
+        global $device_timezone;
+        echo "coloumn : ".$coloumn;
+        echo "alias : ".$alias;
+        return "CONVERT_TZ(".$coloumn.",'+00:00',".$device_timezone.") AS ".$alias;
+    };
 };

@@ -6,6 +6,7 @@ return [
         'displayErrorDetails' => true, // set to false in production
         'blank_nulls' => true, //true=> null values shown as blanks '', false=> null values shown as 'null'
         'utc_timezone' => false, //true=> Using default UTC timezones in all the DateTime responses, false=> Using the device_timezone as saved in the database (if available)
+        'tz_conversion_method' => 2, // 1=> Through array_walk_recursive function, 2=> Through direct query 
         'jwt_signing_key' => 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1',
        
         // Database settings

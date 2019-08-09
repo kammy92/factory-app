@@ -6,7 +6,7 @@ use \Firebase\JWT\JWT;
 
 $app->group('/test', function () use ($api_log) {
     $this->get('', function (Request $rqst, Response $rsp, array $args) {
-        echo "date  : ".new DateTimeZone("Asia/Tokyo");
+
         $response["data"] = array();
         
         $token_payload = [
