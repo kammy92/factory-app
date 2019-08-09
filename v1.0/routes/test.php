@@ -6,6 +6,7 @@ use \Firebase\JWT\JWT;
 
 $app->group('/test', function () use ($api_log) {
     $this->get('', function (Request $rqst, Response $rsp, array $args) {
+        echo "date  : ".new DateTimeZone("Asia/Tokyo");
         $response["data"] = array();
         
         $token_payload = [
@@ -30,28 +31,36 @@ $app->group('/test', function () use ($api_log) {
     
     $this->get('/jwt', function (Request $rqst, Response $rsp, array $args) {
         $response["data"] = array();
-        
-        $token_payload = [
-            'user_id' => 'https://github.com/auth0/php-jwt-example',
-            'user_name' => '123456',
-            'created_at' => 'John Doe',
-            'expire_at' => 'info@auth0.com'
+         $token_payload = [
+            'user_id' => '1',
+            'aud' => 'Karman Singh',
+            'iss' => 'admin',
+            'iat' => '2019-08-09 06:28:56',
+            'exp' => strtotime('2019-09-06 06:28:56'),
+            'zoneinfo' => '+05:30'
         ];
+
         // This is your client secret
         $key = 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1';
-        $key2 = 'fd75d2941232c9a9fec01bb6217fff0dcc45973c12ebc637a1';
+//        $key2 = 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1';
         // This is your id token
         try{
             $jwt = JWT::encode($token_payload, base64_decode(strtr($key, '-_', '+/')), 'HS256');
-            $decoded = JWT::decode($jwt, base64_decode(strtr($key2, '-_', '+/')), ['HS256']);
-            $response["data"]["jwt"] = $jwt;
+            //$response["data"]["jwt"] = $jwt;
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "TokenEncodeError", "Error occurred while encoding Token. Please try again.");
+            return $rsp;
+        }
+        try{
+            $jwt2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJhdWQiOiJLYXJtYW4gU2luZ2giLCJpc3MiOiJhZG1pbiIsImlhdCI6IjIwMTktMDgtMDkgMDY6Mzk6MjgiLCJleHAiOjE1Njc3NTE5NjgsInpvbmVpbmZvIjoiKzA1OjMwIn0.snY_mdHgrh1GD6thiAkBcpFAJnP2-i5by7Wko7hBz6s";
+            $decoded = JWT::decode($jwt2, base64_decode(strtr($key, '-_', '+/')), ['HS256']);
             $response["data"]["decoded"] = $decoded;
         } catch(Exception $e) {
             $print=$this->error_response;
-            $rsp = $print($rsp, "UserTokenInvalid", "Access Denied. User token is not valid or expired.");
+            $rsp = $print($rsp, "TokenDecodeError", "Error Occured while decoding Token. Please try again.");
             return $rsp;
-        }
-      
+        }      
         $print = $this->data_response;
         $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
         return $rsp;

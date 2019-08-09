@@ -1,4 +1,5 @@
 <?php
+use \Firebase\JWT\JWT;
 // DIC configuration
 $container = $app->getContainer();
 
@@ -33,13 +34,33 @@ $container['connect_mysqli'] = function ($c) {
     
 };
 
-$container['generate_token'] = function ($c) {
+$container['generate_basic_token'] = function ($c) {
     return function($user_id, $user_name, $datetime, $expiry) use ($c){
         try {
             return substr(md5($user_id.$user_name.$datetime.$expiry).sha1($expiry.$datetime.$user_id.$user_name), 10,50);
         } catch(Exception $e) {
             $print=$this->error_response;
             $rsp = $print($rsp, "TokenGenerateError", "Error occurred while generating Token.", $e);
+            return $rsp;
+        }
+    };
+};
+
+$container['generate_jwt_token'] = function ($c) {
+    return function($user_id, $user_name, $datetime, $expiry, $timezone) use ($c){ 
+        $token_payload = [
+            'user_id' => $user_id,
+            'aud' => $user_name,
+            'iss' => 'admin',
+            'iat' => $datetime,
+            'exp' => strtotime($expiry),
+            'zoneinfo' => $timezone
+        ];
+        try{
+            return JWT::encode($token_payload, base64_decode(strtr($c['settings']['jwt_signing_key'], '-_', '+/')), 'HS256');
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "JWTTokenEncodeError", "Error occurred while encoding JWT Token. Please try again.");
             return $rsp;
         }
     };
@@ -94,15 +115,22 @@ $container['data_response'] = function ($c) {
     return function($rsp, $response, $success_type, $success_message = '', $more_info = '', $status_code = 0, $log_message = '') use ($c){
         $success = $c['settings']['success']["$success_type"];
         $url = $c['settings']['success_info_url'];
-        if($c['settings']['blank_nulls']){ 
-            array_walk_recursive($response, function (&$item, $key) {$item = null === $item ? '' : $item;});
-        }
-        // array_walk_recursive($response, function (&$item, $key) {
-        //     if ((DateTime::createFromFormat('Y-m-d H:i:s', $item) !== FALSE)){
-        //      //   $dt = new DateTime(strtotime($item, "+05:30")); $item = $dt->format("Y-m-d H:i:s");
-        //     } else {
-        //         $item = $item;
-        //     });
+
+        array_walk_recursive($response, function (&$item, $key) use ($c) {
+            if (!$c['settings']['utc_timezone']) {
+                if ((DateTime::createFromFormat('Y-m-d H:i:s', $item) !== FALSE)){
+                    global $device_timezone;
+                    $date = new DateTime($item, new DateTimeZone("UTC"));
+                    $date->setTimezone(new DateTimeZone($device_timezone));
+                    $item = $date->format('Y-m-d H:i:s');
+                }
+            }
+            if ($c['settings']['blank_nulls']){ 
+                if ($item === null){
+                    $item = '';
+                }
+            }
+        });
         
         $response["error"] = new ArrayObject();
         $response["data"]["success_type"] = $success["success_type"];

@@ -1,16 +1,13 @@
 <?php
-// if (strpos($_SERVER['HTTP_HOST'], 'codenvy') !== false){
-//     echo "true";
-// } else {
-//     echo "fasle";
-// }
-//         exit;
 $tmp = "localhost";
 
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
-        'blank_nulls' => false, 
+        'blank_nulls' => true, //true=> null values shown as blanks '', false=> null values shown as 'null'
+        'utc_timezone' => false, //true=> Using default UTC timezones in all the DateTime responses, false=> Using the device_timezone as saved in the database (if available)
+        'jwt_signing_key' => 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1',
+       
         // Database settings
         'db' => 
             strpos($_SERVER["HTTP_HOST"], 'localhost') !== false ? array( 
@@ -64,6 +61,16 @@ return [
         'errors' => [
             'TokenGenerateError' => [
                 'error_type' => 'TokenGenerateError',
+                'error_code' => 1234,
+                'http_code' => 500
+            ],
+            'JWTTokenEncodeError' => [
+                'error_type' => 'JWTTokenEncodeError',
+                'error_code' => 1234,
+                'http_code' => 500
+            ],
+            'JWTTokenDecodeError' => [
+                'error_type' => 'JWTTokenDecodeError',
                 'error_code' => 1234,
                 'http_code' => 500
             ],

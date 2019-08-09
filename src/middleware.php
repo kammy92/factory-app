@@ -1,4 +1,6 @@
 <?php
+use \Firebase\JWT\JWT;
+
 $api_auth = function ($rqst, $rsp, $next) {
     try {
         if ($rqst->hasHeader('api-key')) {
@@ -32,21 +34,32 @@ $user_auth = function ($rqst, $rsp, $next) {
                     $user_token = substr($rqst->getHeader('authorization')[0], 7);
                     $device_id = $rqst->hasHeader('device-id') ? $rqst->getHeader('device-id')[0] : "";
 	                $device_type = strtoupper($rqst->hasHeader("device-type")) ? (in_array(strtoupper($rqst->getHeader("device-type")[0]), ["ANDROID", "IOS", "WEB"]) ? strtoupper($rqst->getHeader("device-type")[0]) : "") : "";
+
+                    try{
+                        $decoded = JWT::decode($user_token, base64_decode(strtr($this->get('settings')['jwt_signing_key'], '-_', '+/')), ['HS256']);
+                    } catch(Exception $e) {
+                        echo "exception message : ".$e->getMessage();
+                        $print=$this->error_response;
+                        $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Please try again.");
+                        return $rsp;
+                    }
                     $user = isValidUserToken($device_id, $device_type, $user_token);
-        	        if ($user["found"] > 0) {
+                    if ($user["exist"] > 0) {
                         global $user_id;
+                        global $device_timezone;
                         $user_id = $user["user_id"];
+                        $device_timezone = $user["device_timezone"];
                         $rsp = $next($rqst, $rsp);
                     } else {
                         $print=$this->error_response;
                         $rsp = $print($rsp, "UserTokenInvalid", "Access Denied. User token is not valid or expired.");
                         return $rsp;
                     }
-                 } else {
-                     $print=$this->error_response;
-                     $rsp = $print($rsp, "UserTokenNotFound", "Access Denied. User Authorization Token is not present.");
-                     return $rsp;
-                 }
+                } else {
+                    $print=$this->error_response;
+                    $rsp = $print($rsp, "UserTokenNotFound", "Access Denied. User Authorization Token is not present.");
+                    return $rsp;
+                }
             } else {
                 $print=$this->error_response;
 		        $rsp = $print($rsp, "APIKeyInvalid", "Access Denied. API key is not valid.");
@@ -121,10 +134,12 @@ function isValidApiKey($api_key) {
 function isValidUserToken($device_id, $device_type, $user_token) {
     global $mysqli;
     $rsp = array();
-    $query = "SELECT `lgn_usr_id` FROM `tbl_user_logins` WHERE `lgn_device_id` = ? AND `lgn_device_type` = ? AND `lgn_token` = ? AND `lgn_token_status` = 1";
+    $query = "SELECT `lgn_usr_id`, `lgn_device_timezone` FROM `tbl_user_logins` WHERE `lgn_device_id` = ? AND `lgn_device_type` = ? AND `lgn_token` = ? AND `lgn_token_status` = 1";
     $result = $mysqli->query($query, [$device_id, $device_type, $user_token]);
-    $rsp["found"] = $result->numRows();
-	$rsp["user_id"] = $result->fetch("col");
+    $rsp["exist"] = $result->numRows();
+    $rslt = $result->fetch("assoc");
+	$rsp["user_id"] = $rslt["lgn_usr_id"];
+    $rsp["device_timezone"] = $rslt["lgn_device_timezone"];
 	return $rsp;
 }
 

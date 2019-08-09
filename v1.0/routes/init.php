@@ -22,7 +22,7 @@ $app->group('/app', function () use ($user_auth) {
 		$device_id = $rqst->hasHeader("device-id") ? $rqst->getHeader("device-id")[0] : "";
 		$device_type = strtoupper($rqst->hasHeader("device-type")) ? (in_array(strtoupper($rqst->getHeader("device-type")[0]), ["ANDROID", "IOS", "WEB"]) ? strtoupper($rqst->getHeader("device-type")[0]) : "") : "";
 		$device_details = $rqst->hasHeader("device-details") ? $rqst->getHeader("device-details")[0] : "";
-		$device_timezone = $rqst->hasHeader("device-timezone") ? $rqst->getHeader("device-timezone")[0] : "+00:00";
+		$device_timezone = $rqst->hasHeader("device-timezone") ? (preg_match("/[+-][0-9]{2}:[0-9]{2}\b/", $rqst->getHeader("device-timezone")[0])) ? $rqst->getHeader("device-timezone")[0] : "+00:00" : "+00:00";
 	
 		$response["data"] = array();
 	

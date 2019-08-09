@@ -21,7 +21,7 @@ $app->group('/app', function () use ($api_auth) {
 		$device_id = $rqst->hasHeader("device-id") ? $rqst->getHeader("device-id")[0] : "";
 		$device_type = strtoupper($rqst->hasHeader("device-type")) ? (in_array(strtoupper($rqst->getHeader("device-type")[0]), ["ANDROID", "IOS", "WEB"]) ? strtoupper($rqst->getHeader("device-type")[0]) : "") : "";
 		$device_details = $rqst->hasHeader("device-details") ? $rqst->getHeader("device-details")[0] : "";
-		$device_timezone = $rqst->hasHeader("device-timezone") ? $rqst->getHeader("device-timezone")[0] : "+00:00";
+		$device_timezone = $rqst->hasHeader("device-timezone") ? (preg_match("/[+-][0-9]{2}:[0-9]{2}\b/", $rqst->getHeader("device-timezone")[0])) ? $rqst->getHeader("device-timezone")[0] : "+00:00" : "+00:00";
 		
 		$response["data"] = array();
 	
@@ -45,8 +45,8 @@ $app->group('/app', function () use ($api_auth) {
         					$data["user_token"] = $user["lgn_token"];
         					break;
         				default:
-        				    $generate_token = $this->generate_token;
-	        				$token = generateNewToken($generate_token, $device_id, $device_type, $device_details, $device_timezone, $user["usr_id"],$user["usr_name"], $this->utc_time);
+	        				$generate_jwt_token = $this->generate_jwt_token;
+	        				$token = generateNewToken($generate_jwt_token, $device_id, $device_type, $device_details, $device_timezone, $user["usr_id"],$user["usr_name"], $this->utc_time);
         					$data["user_name"] = $user["usr_name"];
         					$data["user_email"] = $user["usr_email"];
         					$data["user_mobile"] = $user["usr_mobile"];
@@ -97,11 +97,11 @@ function getUserDetails($device_id, $device_type, $login_username) {
 	return $result->fetch("assoc");
 }
 
-function generateNewToken($generate_token, $device_id, $device_type, $device_details, $device_timezone, $user_id, $user_name, $datetime) {
+function generateNewToken($generate_jwt_token, $device_id, $device_type, $device_details, $device_timezone, $user_id, $user_name, $datetime) {
 	global $mysqli;
 	$expiry = date('Y-m-d H:i:s', strtotime('+4 week', strtotime($datetime)));
-	$generate_token;
-	$token = $generate_token($user_id, $user_name, $datetime, $expiry);
+	$generate_jwt_token;
+	$token = $generate_jwt_token($user_id, $user_name, $datetime, $expiry, $device_timezone);
 	$query = ["INSERT INTO `tbl_user_logins`(`lgn_usr_id`, `lgn_device_id`, `lgn_device_type`, `lgn_device_details`, `lgn_device_timezone`, `lgn_token`, `lgn_token_status`, `lgn_token_valid_from`, `lgn_token_valid_till`, `lgn_created_at`) VALUES (?,?,?,?,?,?,1,?,?,?)", "SELECT * FROM `tbl_user_logins` WHERE `lgn_id` = ?"];
 	$values = [$user_id, $device_id, $device_type, $device_details, $device_timezone, $token, $datetime, $expiry, $datetime];
 	$types = "issssssss";
