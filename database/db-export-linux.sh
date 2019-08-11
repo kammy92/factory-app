@@ -1,0 +1,1 @@
+mysqldump -u root -p root factory > factory.sql
