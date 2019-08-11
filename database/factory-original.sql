@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 5.5.58, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.17  Distrib 10.3.16-MariaDB, for Win64 (AMD64)
 --
 -- Host: localhost    Database: factory
 -- ------------------------------------------------------
--- Server version	5.5.58-0+deb8u1
+-- Server version	10.3.16-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -57,16 +57,16 @@ CREATE TABLE `tbl_api_logs` (
   `lg_rqst_method` varchar(30) CHARACTER SET utf8 DEFAULT NULL,
   `lg_rqst_url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `lg_rqst_uri` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `lg_rqst_body` text CHARACTER SET utf8,
-  `lg_rqst_header` text CHARACTER SET utf8,
-  `lg_rqst_raw` text CHARACTER SET utf8,
+  `lg_rqst_body` text CHARACTER SET utf8 DEFAULT NULL,
+  `lg_rqst_header` text CHARACTER SET utf8 DEFAULT NULL,
+  `lg_rqst_raw` text CHARACTER SET utf8 DEFAULT NULL,
   `lg_rsp_http_code` varchar(20) CHARACTER SET utf8 DEFAULT NULL,
   `lg_rsp_msg_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `lg_rsp_msg_code` varchar(20) CHARACTER SET utf8 DEFAULT NULL,
-  `lg_rsp_headers` text CHARACTER SET utf8,
-  `lg_rsp_raw` text CHARACTER SET utf8,
-  `lg_execution_time` bigint(20) NOT NULL DEFAULT '0' COMMENT 'In ms',
-  `lg_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0=>Incomplete, 1=>Completed',
+  `lg_rsp_headers` text CHARACTER SET utf8 DEFAULT NULL,
+  `lg_rsp_raw` text CHARACTER SET utf8 DEFAULT NULL,
+  `lg_execution_time` bigint(20) NOT NULL DEFAULT 0 COMMENT 'In ms',
+  `lg_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=>Incomplete, 1=>Completed',
   `lg_created_at` datetime DEFAULT NULL,
   `lg_modified_at` datetime DEFAULT NULL,
   PRIMARY KEY (`lg_id`)
@@ -97,8 +97,8 @@ CREATE TABLE `tbl_app_versions` (
   `vrsn_api_version` varchar(20) CHARACTER SET utf8 DEFAULT NULL,
   `vrsn_updated_on` datetime DEFAULT NULL,
   `vrsn_changelogs` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `vrsn_critical` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0=> No, 1=> Yes',
-  `vrsn_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0=> Inactive, 1=> Active, -1=>Obsolete',
+  `vrsn_critical` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=> No, 1=> Yes',
+  `vrsn_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=> Inactive, 1=> Active, -1=>Obsolete',
   `vrsn_created_at` datetime DEFAULT NULL,
   `vrsn_modified_at` datetime DEFAULT NULL,
   `vrsn_deleted_at` datetime DEFAULT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE `tbl_customers` (
   `cstmr_mobile` varchar(30) CHARACTER SET utf8 DEFAULT NULL,
   `cstmr_email` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `cstmr_address` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `cstmr_status` tinyint(4) DEFAULT '0' COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
+  `cstmr_status` tinyint(4) DEFAULT 0 COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
   `cstmr_created_at` datetime DEFAULT NULL,
   `cstmr_modified_at` datetime DEFAULT NULL,
   `cstmr_deleted_at` datetime DEFAULT NULL,
@@ -157,8 +157,8 @@ DROP TABLE IF EXISTS `tbl_product_categories`;
 CREATE TABLE `tbl_product_categories` (
   `ctgry_id` int(11) NOT NULL AUTO_INCREMENT,
   `ctgry_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `ctgry_type` tinyint(4) DEFAULT '0' COMMENT '0=>Intermediate, 1=>Final',
-  `ctgry_status` tinyint(4) DEFAULT '0' COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
+  `ctgry_type` tinyint(4) DEFAULT 0 COMMENT '0=>Intermediate, 1=>Final',
+  `ctgry_status` tinyint(4) DEFAULT 0 COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
   `ctgry_created_at` datetime DEFAULT NULL,
   `ctgry_modified_at` datetime DEFAULT NULL,
   `ctgry_deleted_at` datetime DEFAULT NULL,
@@ -191,8 +191,8 @@ CREATE TABLE `tbl_products` (
   `prdct_image` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `prdct_price` decimal(5,2) DEFAULT NULL,
   `prdct_unit` varchar(20) CHARACTER SET utf8 DEFAULT NULL,
-  `prdct_stock` int(11) DEFAULT '0',
-  `prdct_status` tinyint(4) DEFAULT '0' COMMENT '0=> Inactive, 1=> Active, -1=> Deleted',
+  `prdct_stock` int(11) DEFAULT 0,
+  `prdct_status` tinyint(4) DEFAULT 0 COMMENT '0=> Inactive, 1=> Active, -1=> Deleted',
   `prdct_created_at` datetime DEFAULT NULL,
   `prdct_modified_at` datetime DEFAULT NULL,
   `prdct_deleted_at` datetime DEFAULT NULL,
@@ -221,9 +221,9 @@ CREATE TABLE `tbl_settings` (
   `stng_id` int(11) NOT NULL AUTO_INCREMENT,
   `stng_key` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `stng_value` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `stng_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1=>API, 2=>APP, 3=>WEB',
+  `stng_type` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1=>API, 2=>APP, 3=>WEB',
   `stng_api_version` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '0=>All',
-  `stng_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
+  `stng_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
   `stng_created_at` datetime DEFAULT NULL,
   `stng_modified_at` datetime DEFAULT NULL,
   `stng_deleted_at` datetime DEFAULT NULL,
@@ -252,7 +252,7 @@ CREATE TABLE `tbl_stock_transactions` (
   `txn_prdct_id` int(11) DEFAULT NULL,
   `txn_usr_id` int(11) DEFAULT NULL,
   `txn_qty` int(11) DEFAULT NULL,
-  `txn_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '1=>Inward, 2=>Outward',
+  `txn_type` tinyint(4) NOT NULL DEFAULT 0 COMMENT '1=>Inward, 2=>Outward',
   `txn_date` date DEFAULT NULL,
   `txn_created_at` datetime DEFAULT NULL,
   `txn_modified_at` datetime DEFAULT NULL,
@@ -280,7 +280,7 @@ CREATE TABLE `tbl_suppliers` (
   `splr_id` int(11) NOT NULL AUTO_INCREMENT,
   `splr_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `splr_email` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `splr_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
+  `splr_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=>Inactive, 1=>Active, -1=>Deleted',
   `splr_created_at` datetime DEFAULT NULL,
   `splr_modified_at` datetime DEFAULT NULL,
   `splr_deleted_at` datetime DEFAULT NULL,
@@ -352,8 +352,8 @@ CREATE TABLE `tbl_users` (
   `usr_image` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `usr_login_username` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `usr_login_password` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `usr_type` tinyint(4) DEFAULT '0' COMMENT '1=>Admin',
-  `usr_status` tinyint(4) DEFAULT '0' COMMENT '0=>Inactive, 1=> Active, -1=>Deleted',
+  `usr_type` tinyint(4) DEFAULT 0 COMMENT '1=>Admin',
+  `usr_status` tinyint(4) DEFAULT 0 COMMENT '0=>Inactive, 1=> Active, -1=>Deleted',
   `usr_created_at` datetime DEFAULT NULL,
   `usr_modified_at` datetime DEFAULT NULL,
   `usr_deleted_at` datetime DEFAULT NULL,
@@ -380,4 +380,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-11 17:01:57
+-- Dump completed on 2019-08-09 15:43:51

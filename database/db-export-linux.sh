@@ -1,1 +1,1 @@
-mysqldump -u root -p root factory > factory.sql
+mysqldump -u root -proot factory > factory.sql
