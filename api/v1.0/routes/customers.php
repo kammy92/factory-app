@@ -10,7 +10,10 @@ $app->group('/app', function () use ($user_auth) {
 	    	try {
 	    		$offset = $rqst->getParam("offset") ? $rqst->getParam("offset") : 0;
 	    		$limit = $rqst->getParam("limit") ? $rqst->getParam("limit") : 100;
-	    		$data["customers"] = getAllActiveCustomers($offset, $limit);
+	    		$status = $rqst->getParam("status") ? $rqst->getParam("status") : 1;
+	    		$search = $rqst->getParam("search") ? $rqst->getParam("search") : '';
+	    		$sort = $rqst->getParam("sort") ? $rqst->getParam("sort") : '';
+	    		$data["customers"] = getAllCustomers($offset, $limit, $status, $search, $sort);
 			} catch(Exception $e) {
 				$print=$this->error_response;
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
@@ -18,6 +21,9 @@ $app->group('/app', function () use ($user_auth) {
 			}
 			$data["offset"] = $offset;
 			$data["limit"] = $limit;
+			$data["status"] = $status;
+			$data["search"] = $search;
+			$data["sort"] = $sort;
 			if(sizeof($data["customers"]) > 0){
 				$message = "Customers fetched successfully.";
 			} else {
@@ -195,13 +201,14 @@ $app->group('/app', function () use ($user_auth) {
 });
 
 
-function getAllActiveCustomers($offset, $limit){//, $convert_timezone){
+function getAllCustomers($offset, $limit, $status, $search, $sort){//, $convert_timezone){
 	global $mysqli;
+	$search = "%".$search."%";
 	//$convert_timezone = new convert_timezone()
 	//echo "convert string : ".convert_timezone('cstmr_created_at', 'created_at');
 	//exit;
-	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` = 1 ORDER BY `cstmr_name` ASC LIMIT ?,?";
-	return $mysqli->query($query, [$offset, $limit], "ii")->fetchAll("assoc");
+	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `cstmr_name` ASC LIMIT ?,?";
+	return $mysqli->query($query, [$search, $search, $search, $offset, $limit], "sssii")->fetchAll("assoc");
 }
 
 function insertNewCustomer($customer_name, $customer_mobile, $customer_email, $customer_address, $datetime){
