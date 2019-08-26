@@ -7,13 +7,23 @@ $app->group('/app', function () use ($user_auth) {
 		$this->get('', function (Request $rqst, Response $rsp, array $args) {  
 			$response = array();
 			$response["data"] = array();
+
+			$offset = ($rqst->getParam("offset")) !== null ? $rqst->getParam("offset") : 0;
+			$limit = ($rqst->getParam("limit")) !== null ? $rqst->getParam("limit") : 100;
+			$status = $rqst->getParam("status") !== null && $rqst->getParam("status") !== '' ? $rqst->getParam("status") : 1;
+    		$search = ($rqst->getParam("search")) !== null ? $rqst->getParam("search") : '';
+
+			try {
+	  			global $validation;
+  				$validation->validateRequiredExpressions(["offset", "limit", "status"], [$offset, $limit, $status], ["/[+]?[0-9]/","/[+]?[0-9]/","/+?[0-1]{1}/"]);
+  			} catch(Exception $e){
+	  			$print=$this->error_response;
+				$rsp = $print($rsp, "ValidationError", "Error occurred in Validation. Details: ".$e->getMessage(), $e);
+  				return $rsp;
+  			}
+
 	    	try {
-	    		$offset = $rqst->getParam("offset") ? $rqst->getParam("offset") : 0;
-	    		$limit = $rqst->getParam("limit") ? $rqst->getParam("limit") : 100;
-	    		$status = $rqst->getParam("status") ? $rqst->getParam("status") : 1;
-	    		$search = $rqst->getParam("search") ? $rqst->getParam("search") : '';
-	    		$sort = $rqst->getParam("sort") ? $rqst->getParam("sort") : '';
-	    		$data["customers"] = getAllCustomers($offset, $limit, $status, $search, $sort);
+	    		$data["customers"] = getAllCustomers($offset, $limit, $status, $search);
 			} catch(Exception $e) {
 				$print=$this->error_response;
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
@@ -23,7 +33,6 @@ $app->group('/app', function () use ($user_auth) {
 			$data["limit"] = $limit;
 			$data["status"] = $status;
 			$data["search"] = $search;
-			$data["sort"] = $sort;
 			if(sizeof($data["customers"]) > 0){
 				$message = "Customers fetched successfully.";
 			} else {
@@ -31,7 +40,7 @@ $app->group('/app', function () use ($user_auth) {
 			}
 			$response["data"] = $data;
 			$print = $this->data_response;
-			$rsp = $print($rsp, $response, "FetchedSuccessful", $message);  
+			$rsp = $print($rsp, $response, "FetchedSuccessful", $message, "Customer Status : 0=> Inactive, 1=> Active");  
 			return $rsp;
 		});
 		
@@ -201,13 +210,14 @@ $app->group('/app', function () use ($user_auth) {
 });
 
 
-function getAllCustomers($offset, $limit, $status, $search, $sort){//, $convert_timezone){
+function getAllCustomers($offset, $limit, $status, $search){//, $convert_timezone){
 	global $mysqli;
 	$search = "%".$search."%";
 	//$convert_timezone = new convert_timezone()
 	//echo "convert string : ".convert_timezone('cstmr_created_at', 'created_at');
 	//exit;
-	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `cstmr_name` ASC LIMIT ?,?";
+	
+	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, `cstmr_status` AS `customer_status`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `cstmr_name` ASC LIMIT ?,?";
 	return $mysqli->query($query, [$search, $search, $search, $offset, $limit], "sssii")->fetchAll("assoc");
 }
 

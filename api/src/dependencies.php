@@ -31,7 +31,6 @@ $container['connect_mysqli'] = function ($c) {
 		$rsp = $print($rsp, 500, 2323, "MySQLException", "Error occurred in MySQL. Details=> ".$e->getMessage(), "http://google.com/2323");
 		return $rsp;
     }
-    
 };
 
 $container['generate_basic_token'] = function ($c) {
@@ -298,5 +297,15 @@ $container['convert_timezone'] = function ($c) {
         echo "coloumn : ".$coloumn;
         echo "alias : ".$alias;
         return "CONVERT_TZ(".$coloumn.",'+00:00',".$device_timezone.") AS ".$alias;
+    };
+};
+
+$container['isset'] = function ($c) {
+    return function ($value = '', $default = '') use ($c) {
+        if (isset($value)) {
+            return $value;
+        } else {
+            return $default;
+        }
     };
 };
