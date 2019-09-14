@@ -13,12 +13,12 @@ return [
         'db' => 
             strpos($_SERVER["HTTP_HOST"], 'localhost') !== false ? array( 
                 'user' => 'root',
-                'pass' => '',
+                'pass' => 'root',
                 'host' => 'localhost',
                 'name' => 'factory') : array(
                 
-                'user' => 'root3',
-                'pass' => 'root3',
+                'user' => 'root',
+                'pass' => 'root',
                 'host' => 'localhost',
                 'name' => 'factory'),
        
