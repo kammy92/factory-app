@@ -1,14 +1,6 @@
 <?php
-
-// https://github.com/WebsiteBeaver/Simple-MySQLi
-
 class ValidationException extends Exception {}
 
-/**
- * Class SimpleMySQLi
- *
- * @version 1.5.5
- */
 class Validations {
 	private $validation;
 

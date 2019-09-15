@@ -6,7 +6,7 @@ return [
         'displayErrorDetails' => true, // set to false in production
         'blank_nulls' => true, //true=> null values shown as blanks '', false=> null values shown as 'null'
         'utc_timezone' => false, //true=> Using default UTC timezones in all the DateTime responses, false=> Using the device_timezone as saved in the database (if available)
-        'tz_conversion_method' => 2, // 1=> Through array_walk_recursive function, 2=> Through direct query 
+        'tz_conversion_method' => 1, // 1=> Through array_walk_recursive function, 2=> Through direct query (under development)
         'jwt_signing_key' => 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1',
        
         // Database settings
@@ -73,7 +73,7 @@ return [
             'JWTTokenDecodeError' => [
                 'error_type' => 'JWTTokenDecodeError',
                 'error_code' => 1234,
-                'http_code' => 500
+                'http_code' => 401
             ],
             'MySQLException' => [
                 'error_type' => 'MySQLException',
@@ -165,6 +165,11 @@ return [
         'success' => [
             'TestSuccessful' => [
                 'success_type' => 'TestSuccessful',
+                'success_code' => 0000,
+                'http_code' => 200
+            ],
+            'CronSuccessful' => [
+                'success_type' => 'CronSuccessful',
                 'success_code' => 0000,
                 'http_code' => 200
             ],
