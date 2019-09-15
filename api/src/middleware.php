@@ -40,7 +40,7 @@ $user_auth = function ($rqst, $rsp, $next) {
                     } catch(Exception $e) {
                         echo "exception message : ".$e->getMessage();
                         $print=$this->error_response;
-                        $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Please try again.");
+                        $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Details: ".$e->getMessage(), $e);
                         return $rsp;
                     }
                     $user = isValidUserToken($device_id, $device_type, $user_token);

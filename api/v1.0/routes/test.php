@@ -49,7 +49,7 @@ $app->group('/test', function () use ($api_log) {
             //$response["data"]["jwt"] = $jwt;
         } catch(Exception $e) {
             $print=$this->error_response;
-            $rsp = $print($rsp, "TokenEncodeError", "Error occurred while encoding Token. Please try again.");
+            $rsp = $print($rsp, "JWTTokenEncodeError", "Error occurred while encoding JWT Token. Please try again.");
             return $rsp;
         }
         try{
@@ -58,9 +58,9 @@ $app->group('/test', function () use ($api_log) {
             $response["data"]["decoded"] = $decoded;
         } catch(Exception $e) {
             $print=$this->error_response;
-            $rsp = $print($rsp, "TokenDecodeError", "Error Occured while decoding Token. Please try again.");
+            $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Details: ".$e->getMessage(), $e);
             return $rsp;
-        }      
+        }            
         $print = $this->data_response;
         $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
         return $rsp;

@@ -73,7 +73,7 @@ return [
             'JWTTokenDecodeError' => [
                 'error_type' => 'JWTTokenDecodeError',
                 'error_code' => 1234,
-                'http_code' => 500
+                'http_code' => 401
             ],
             'MySQLException' => [
                 'error_type' => 'MySQLException',
@@ -165,6 +165,11 @@ return [
         'success' => [
             'TestSuccessful' => [
                 'success_type' => 'TestSuccessful',
+                'success_code' => 0000,
+                'http_code' => 200
+            ],
+            'CronSuccessful' => [
+                'success_type' => 'CronSuccessful',
                 'success_code' => 0000,
                 'http_code' => 200
             ],
