@@ -46,7 +46,7 @@ $app->group('/app', function () use ($api_auth) {
         					break;
         				default:
 	        				$generate_jwt_token = $this->generate_jwt_token;
-	        				$token = generateNewToken($generate_jwt_token, $device_id, $device_type, $device_details, $device_timezone, $user["usr_id"],$user["usr_name"], $this->utc_time);
+	        				$token = generateNewToken($generate_jwt_token, $this['settings']['jwt_expiry_time'], $device_id, $device_type, $device_details, $device_timezone, $user["usr_id"],$user["usr_name"], $this->utc_time);
         					$data["user_name"] = $user["usr_name"];
         					$data["user_email"] = $user["usr_email"];
         					$data["user_mobile"] = $user["usr_mobile"];
@@ -97,20 +97,19 @@ function getUserDetails($device_id, $device_type, $login_username) {
 	return $result->fetch("assoc");
 }
 
-function generateNewToken($generate_jwt_token, $device_id, $device_type, $device_details, $device_timezone, $user_id, $user_name, $datetime) {
+function generateNewToken($generate_jwt_token, $expiry_time, $device_id, $device_type, $device_details, $device_timezone, $user_id, $user_name, $datetime) {
 	global $mysqli;
-	$expiry = date('Y-m-d H:i:s', strtotime('+4 week', strtotime($datetime)));
-	$generate_jwt_token;
-	$token = $generate_jwt_token($user_id, $user_name, $datetime, $expiry, $device_timezone);
+	$expiry = date('Y-m-d H:i:s', strtotime($expiry_time, strtotime($datetime)));
+	$token = $generate_jwt_token($user_id, $user_name, $datetime, $device_timezone);
 	$query = ["INSERT INTO `tbl_user_logins`(`lgn_usr_id`, `lgn_device_id`, `lgn_device_type`, `lgn_device_details`, `lgn_device_timezone`, `lgn_token`, `lgn_token_status`, `lgn_token_valid_from`, `lgn_token_valid_till`, `lgn_created_at`) VALUES (?,?,?,?,?,?,1,?,?,?)", "SELECT * FROM `tbl_user_logins` WHERE `lgn_id` = ?"];
 	$values = [$user_id, $device_id, $device_type, $device_details, $device_timezone, $token, $datetime, $expiry, $datetime];
-	$types = "issssssss";
+	$types = ["issssssss","i"];
 	$user_token = array();
 	$mysqli->transaction(function($mysqli) use ($query, $values, $types, &$user_token) {
-		$insert = $mysqli->query($query[0], $values, $types);
+		$insert = $mysqli->query($query[0], $values, $types[0]);
 		if($insert->affectedRows() < 1) 
 			throw new Exception('Error inserting values');
-		$user_token = $mysqli->query($query[1], $insert->insertId(), "i")->fetch("assoc");
+		$user_token = $mysqli->query($query[1], $insert->insertId(), $types[1])->fetch("assoc");
 	});
 	return $user_token;
 }

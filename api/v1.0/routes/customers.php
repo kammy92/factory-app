@@ -15,7 +15,7 @@ $app->group('/app', function () use ($user_auth) {
 
 			try {
 	  			global $validation;
-  				$validation->validateRequiredExpressions(["offset", "limit", "status"], [$offset, $limit, $status], ["/[+]?[0-9]/","/[+]?[0-9]/","/+?[0-1]{1}/"]);
+  				$validation->validateRequiredExpressions(["offset", "limit", "status"], [$offset, $limit, $status], ["/[0-9]/","/[0-9]/","/[0-1]{1}/"]);
   			} catch(Exception $e){
 	  			$print=$this->error_response;
 				$rsp = $print($rsp, "ValidationError", "Error occurred in Validation. Details: ".$e->getMessage(), $e);
@@ -29,6 +29,7 @@ $app->group('/app', function () use ($user_auth) {
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
 				return $rsp;
 			}
+			$data["total"] = getTotalCustomerCount($status, $search);
 			$data["offset"] = $offset;
 			$data["limit"] = $limit;
 			$data["status"] = $status;
@@ -219,6 +220,13 @@ function getAllCustomers($offset, $limit, $status, $search){//, $convert_timezon
 	
 	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, `cstmr_status` AS `customer_status`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `cstmr_name` ASC LIMIT ?,?";
 	return $mysqli->query($query, [$search, $search, $search, $offset, $limit], "sssii")->fetchAll("assoc");
+}
+
+function getTotalCustomerCount($status, $search){
+	global $mysqli;
+	$search = "%".$search."%";	
+	$query = "SELECT count(*) AS `total` FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?)";
+	return $mysqli->query($query, [$search, $search, $search], "sss")->fetch("col");
 }
 
 function insertNewCustomer($customer_name, $customer_mobile, $customer_email, $customer_address, $datetime){

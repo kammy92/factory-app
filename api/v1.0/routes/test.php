@@ -66,6 +66,21 @@ $app->group('/test', function () use ($api_log) {
         return $rsp;
     });
     
+    $this->get('/jwt/decode', function (Request $rqst, Response $rsp, array $args) {
+        $response["data"] = array();
+        try{
+            $decoded = JWT::decode($rqst->getParam("token"),base64_decode(strtr($this->get('settings')['jwt_signing_key'], '-_', '+/')), ['HS256']);
+            $response["data"]["decoded"] = $decoded;
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Details: ".$e->getMessage(), $e);
+            return $rsp;
+        }            
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
+        return $rsp;
+    });
+    
     $this->get('/echo/{message}', function (Request $rqst, Response $rsp, array $args) {
         $response["data"] = array();
         $print = $this->data_response;
@@ -145,4 +160,20 @@ $app->group('/test', function () use ($api_log) {
         phpinfo();
         $this->logger->addInfo('in test/phpinfo');
     });
+    
+    $this->post('/complete-request', function (Request $rqst, Response $rsp, array $args) {
+        $response["data"] = array();
+        try{
+            $decoded = JWT::decode($rqst->getParam("token"),base64_decode(strtr($this->get('settings')['jwt_signing_key'], '-_', '+/')), ['HS256']);
+            $response["data"]["decoded"] = $decoded;
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Details: ".$e->getMessage(), $e);
+            return $rsp;
+        }            
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Test URL");
+        return $rsp;
+    });
+    
 });

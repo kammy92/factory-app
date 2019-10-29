@@ -46,13 +46,13 @@ $container['generate_basic_token'] = function ($c) {
 };
 
 $container['generate_jwt_token'] = function ($c) {
-    return function($user_id, $user_name, $datetime, $expiry, $timezone) use ($c){ 
+    return function($user_id, $user_name, $datetime, $timezone) use ($c){ 
         $token_payload = [
             'user_id' => $user_id,
             'aud' => $user_name,
             'iss' => 'admin',
             'iat' => $datetime,
-            'exp' => strtotime($expiry),
+            'exp' => strtotime($c['settings']['jwt_expiry_time'], strtotime($datetime)),
             'zoneinfo' => $timezone
         ];
         try{
