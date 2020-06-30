@@ -5,3 +5,9 @@
 [2019-10-29 08:57:22] slim-app.INFO: Page not found [] {"uid":"42e6f48"}
 [2019-10-29 08:57:34] slim-app.INFO: Page not found [] {"uid":"a679030"}
 [2019-10-29 08:57:36] slim-app.INFO: Page not found [] {"uid":"14347c1"}
+[2020-06-29 14:13:29] slim-app.INFO: PHP Error occurred [] {"uid":"ba191b7"}
+[2020-06-29 14:18:07] slim-app.INFO: PHP Error occurred [] {"uid":"91d5deb"}
+[2020-06-29 14:29:39] slim-app.INFO: PHP Error occurred [] {"uid":"90f5ff7"}
+[2020-06-29 14:34:13] slim-app.INFO: PHP Error occurred [] {"uid":"a2ea150"}
+[2020-06-29 14:34:49] slim-app.INFO: PHP Error occurred [] {"uid":"3ade373"}
+[2020-06-29 14:47:55] slim-app.INFO: Method not allowed [] {"uid":"cfb45bf"}

@@ -38,7 +38,6 @@ $user_auth = function ($rqst, $rsp, $next) {
                     try{
                         $decoded = JWT::decode($user_token, base64_decode(strtr($this->get('settings')['jwt_signing_key'], '-_', '+/')), ['HS256']);
                     } catch(Exception $e) {
-                        echo "exception message : ".$e->getMessage();
                         $print=$this->error_response;
                         $rsp = $print($rsp, "JWTTokenDecodeError", "Error Occured while decoding JWT Token. Details: ".$e->getMessage(), $e);
                         return $rsp;
