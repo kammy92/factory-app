@@ -2,20 +2,32 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
+// function subtractAdd($a, $b, $c) {
+//   return $a - $b + $c;
+// }
+
+// $arrA = array(19, 21, 46, 29);
+// $arrB = array(18, 19, 20, 21);
+// $arrC = array(1, 2, 26, 8);
+// $arrO = array_map("subtractAdd", $arrA, $arrB, $arrC);
+// print_r($arrO);
+
 $app->group('/app', function () use ($user_auth) {
 	$this->group('/customers', function () use ($user_auth) {
 		$this->get('', function (Request $rqst, Response $rsp, array $args) {  
 			$response = array();
 			$response["data"] = array();
 
-			$offset = ($rqst->getParam("offset")) !== null ? $rqst->getParam("offset") : 0;
-			$limit = ($rqst->getParam("limit")) !== null ? $rqst->getParam("limit") : 100;
-			$status = $rqst->getParam("status") !== null && $rqst->getParam("status") !== '' ? $rqst->getParam("status") : 1;
-    		$search = ($rqst->getParam("search")) !== null ? $rqst->getParam("search") : '';
+            $offset = ($rqst->getParam("offset")) !== null ? $rqst->getParam("offset") : 0;
+            $limit = ($rqst->getParam("limit")) !== null ? $rqst->getParam("limit") : 100;
+            $status = $rqst->getParam("status") !== null && $rqst->getParam("status") !== '' ? $rqst->getParam("status") : 1;
+            $search = ($rqst->getParam("search")) !== null ? $rqst->getParam("search") : '';
+            $order = ($rqst->getParam("order")) !== null ? strtoupper($rqst->getParam("order")) : 'ASC';
+    		$orderby = ($rqst->getParam("orderby")) !== null ? $rqst->getParam("orderby") : 'cstmr_name';
 
 			try {
 	  			global $validation;
-  				$validation->validateRequiredExpressions(["offset", "limit", "status"], [$offset, $limit, $status], ["/[0-9]/","/[0-9]/","/[0-1]{1}/"]);
+  				$validation->validateRequiredExpressions(["offset", "limit", "status", "order", "orderby"], [$offset, $limit, $status, $order, $orderby], ["/[0-9]/","/[0-9]/","/[0-1]{1}/","/\bASC\b|\bDESC\b/","/\bcstmr_name\b|\bcstmr_mobile\b|\bcstmr_email\b|\bcstmr_address\b/"]);
   			} catch(Exception $e){
 	  			$print=$this->error_response;
 				$rsp = $print($rsp, "ValidationError", "Error occurred in Validation. Details: ".$e->getMessage(), $e);
@@ -23,7 +35,7 @@ $app->group('/app', function () use ($user_auth) {
   			}
 
 	    	try {
-	    		$data["customers"] = getAllCustomers($offset, $limit, $status, $search);
+	    		$data["customers"] = getAllCustomers($offset, $limit, $status, $search, $order, $orderby);
 			} catch(Exception $e) {
 				$print=$this->error_response;
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
@@ -211,14 +223,14 @@ $app->group('/app', function () use ($user_auth) {
 });
 
 
-function getAllCustomers($offset, $limit, $status, $search){//, $convert_timezone){
+function getAllCustomers($offset, $limit, $status, $search, $order, $orderby){//, $convert_timezone){
 	global $mysqli;
 	$search = "%".$search."%";
 	//$convert_timezone = new convert_timezone()
 	//echo "convert string : ".convert_timezone('cstmr_created_at', 'created_at');
 	//exit;
 	
-	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, `cstmr_status` AS `customer_status`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `cstmr_name` ASC LIMIT ?,?";
+	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, `cstmr_status` AS `customer_status`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `".$orderby."` ".$order." LIMIT ?,?";
 	return $mysqli->query($query, [$search, $search, $search, $offset, $limit], "sssii")->fetchAll("assoc");
 }
 

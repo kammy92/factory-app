@@ -176,4 +176,8 @@ $app->group('/test', function () use ($api_log) {
         return $rsp;
     });
     
+    $this->get('/key-map', function (Request $rqst, Response $rsp, array $args) {  
+        phpinfo();
+        $this->logger->addInfo('in test/phpinfo');
+    });
 });
