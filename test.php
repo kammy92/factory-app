@@ -1,4 +1,6 @@
 <?php
+
+//  sed -i 's/None/All/g' /etc/apache2/apache2.conf
 //$servername = "localhost";
 //$username = "root";
 //$password = "root";

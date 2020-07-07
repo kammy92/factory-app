@@ -1,0 +1,67 @@
+{
+    "tasks": [
+        {
+            "type": "che",
+            "label": "Configure Apache Web Server DocumentRoot",
+            "command": "if grep -q '/projects$' /etc/apache2/sites-available/000-default.conf; then\n  sed -i 's|DocumentRoot /projects|DocumentRoot /projects/crud-php/public|' /etc/apache2/sites-available/000-default.conf\nelse\n  echo \"DocumentRoot already configured!\"\nfi\n",
+            "target": {
+                "component": "php"
+            }
+        },
+        {
+            "type": "che",
+            "label": "Restart Apache Web Server",
+            "command": "service apache2 restart",
+            "target": {
+                "component": "php"
+            }
+        },
+        {
+            "type": "che",
+            "label": "Start Apache Web Server",
+            "command": "service apache2 start",
+            "target": {
+                "component": "php"
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "che",
+            "label": "Stop Apache Web Server",
+            "command": "service apache2 stop",
+            "target": {
+                "component": "php"
+            }
+        },
+        {
+            "type": "che",
+            "label": "Configure database",
+            "command": "sed -i 's/localhost/127.0.0.1/g' config.php && php install.php",
+            "target": {
+                "workingDir": "${CHE_PROJECTS_ROOT}/crud-php",
+                "component": "php"
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "che",
+            "label": "Configure Factory Database",
+            "command": "php install.php",
+            "target": {
+                "workingDir": "${CHE_PROJECTS_ROOT}/factory-app-web/database/",
+                "component": "php"
+            },
+            "problemMatcher": []
+        },
+        {
+            "type": "che",
+            "label": "Start and Configure Factory Server",
+            "command": "service apache2 start;a2enmod rewrite;sed -i 's/None/All/g' /etc/apache2/apache2.conf;service apache2 restart;php install.php",
+            "target": {
+                "workingDir": "${CHE_PROJECTS_ROOT}/factory-app-web/database/",
+                "component": "php"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

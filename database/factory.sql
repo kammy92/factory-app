@@ -475,7 +475,7 @@ CREATE TABLE IF NOT EXISTS `tbl_user_logins` (
 --
 
 INSERT INTO `tbl_user_logins` (`lgn_id`, `lgn_usr_id`, `lgn_device_id`, `lgn_device_type`, `lgn_device_details`, `lgn_device_timezone`, `lgn_token`, `lgn_token_status`, `lgn_token_valid_from`, `lgn_token_valid_till`, `lgn_firebase`, `lgn_firebase_status`, `lgn_app_version`, `lgn_last_login`, `lgn_created_at`, `lgn_modified_at`, `lgn_deleted_at`) VALUES
-(14, 1, '123123', 'ANDROID', '{\"device_id\" : \"123123\",\"android_version\":\"9.0\",\"device_model\":\"LLD-20\",\"manufacturer\":\"Honor\"}', '+05:30', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJhdWQiOiJLYXJtYW4gU2luZ2giLCJpc3MiOiJhZG1pbiIsImlhdCI6IjIwMTktMDgtMDkgMDY6Mzk6MjgiLCJleHAiOjE1Njc3NTE5NjgsInpvbmVpbmZvIjoiKzA1OjMwIn0.snY_mdHgrh1GD6thiAkBcpFAJnP2-i5by7Wko7hBz6s', 1, '2019-08-09 06:39:28', '2019-09-06 06:39:28', 'asdasd', 1, '0', '2019-08-09 09:30:37', '2019-08-09 06:39:28', '2019-08-09 09:30:37', NULL);
+(1, 1, '123123', 'ANDROID', '{\"device_id\" : \"123123\",\"android_version\":\"9.0\",\"device_model\":\"LLD-20\",\"manufacturer\":\"Honor\"}', '+05:30', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJhdWQiOiJLYXJtYW4gU2luZ2giLCJpc3MiOiJhZG1pbiIsImlhdCI6IjIwMjAtMDctMDcgMDk6MjU6MDgiLCJleHAiOjE1OTY1MzMxMDgsInpvbmVpbmZvIjoiKzA1OjMwIn0.UTLLBPniSD_seygieRyHs_96OMcpbLbQQN9L4kxYzus', 1, '2020-07-07 09:25:08', '2020-08-04 09:25:08', NULL, NULL, NULL, NULL, '2020-07-07 09:25:08', NULL, NULL);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -136,9 +136,11 @@ function isValidUserToken($device_id, $device_type, $user_token) {
     $query = "SELECT `lgn_usr_id`, `lgn_device_timezone` FROM `tbl_user_logins` WHERE `lgn_device_id` = ? AND `lgn_device_type` = ? AND `lgn_token` = ? AND `lgn_token_status` = 1";
     $result = $mysqli->query($query, [$device_id, $device_type, $user_token]);
     $rsp["exist"] = $result->numRows();
-    $rslt = $result->fetch("assoc");
-	$rsp["user_id"] = $rslt["lgn_usr_id"];
-    $rsp["device_timezone"] = $rslt["lgn_device_timezone"];
+    if($result->numRows()){
+        $rslt = $result->fetch("assoc");
+	    $rsp["user_id"] = $rslt["lgn_usr_id"];
+        $rsp["device_timezone"] = $rslt["lgn_device_timezone"];
+    }
 	return $rsp;
 }
 

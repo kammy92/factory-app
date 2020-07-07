@@ -2,16 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-// function subtractAdd($a, $b, $c) {
-//   return $a - $b + $c;
-// }
-
-// $arrA = array(19, 21, 46, 29);
-// $arrB = array(18, 19, 20, 21);
-// $arrC = array(1, 2, 26, 8);
-// $arrO = array_map("subtractAdd", $arrA, $arrB, $arrC);
-// print_r($arrO);
-
 $app->group('/app', function () use ($user_auth) {
 	$this->group('/customers', function () use ($user_auth) {
 		$this->get('', function (Request $rqst, Response $rsp, array $args) {  
@@ -40,12 +30,14 @@ $app->group('/app', function () use ($user_auth) {
 				$print=$this->error_response;
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
 				return $rsp;
-			}
+            }
 			$data["total"] = getTotalCustomerCount($status, $search);
 			$data["offset"] = $offset;
 			$data["limit"] = $limit;
 			$data["status"] = $status;
 			$data["search"] = $search;
+			$data["order"] = $order;
+			$data["orderby"] = $orderby;
 			if(sizeof($data["customers"]) > 0){
 				$message = "Customers fetched successfully.";
 			} else {
