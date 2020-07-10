@@ -126,8 +126,7 @@ $app->group('/test', function () use ($api_log) {
     $this->get('/encryption/{message}', function (Request $rqst, Response $rsp, array $args) {  
         $response["data"] = array();
         $response["data"]["message_original"] =  $args['message'];
-        $encrypt = $this->encrypt;
-        $response["data"]["message_encrypted"] = $encrypt($args['message']);
+        $response["data"]["message_encrypted"] = AESUtil::encryptHexStr($args['message']);
         // $decrypt = $this->decrypt;
         // $response["data"]["message_decrypted"] = $decrypt($encrypt($args["message"]));
 

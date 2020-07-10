@@ -20,10 +20,10 @@ $app->group('/app', function () use ($user_auth) {
   				$validation->validateRequiredExpressions(["offset", "limit", "status", "order", "orderby"], [$offset, $limit, $status, $order, $orderby], ["/[0-9]/","/[0-9]/","/[0-1]{1}/","/\bASC\b|\bDESC\b/","/\bcstmr_name\b|\bcstmr_mobile\b|\bcstmr_email\b|\bcstmr_address\b/"]);
   			} catch(Exception $e){
 	  			$print=$this->error_response;
-				$rsp = $print($rsp, "ValidationError", "Error occurred in Validation. Details: ".$e->getMessage(), $e);
-  				return $rsp;
-  			}
-
+                $rsp = $print($rsp, "ValidationError", "Error occurred in Validation. Details: ".$e->getMessage(), $e);
+                return $rsp;
+            }
+              
 	    	try {
 	    		$data["customers"] = getAllCustomers($offset, $limit, $status, $search, $order, $orderby);
 			} catch(Exception $e) {
@@ -31,13 +31,25 @@ $app->group('/app', function () use ($user_auth) {
 				$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL.", $e);
 				return $rsp;
             }
-			$data["total"] = getTotalCustomerCount($status, $search);
-			$data["offset"] = $offset;
-			$data["limit"] = $limit;
-			$data["status"] = $status;
-			$data["search"] = $search;
-			$data["order"] = $order;
-			$data["orderby"] = $orderby;
+            $rsp = $rsp->withHeader("Paging-Total", getTotalCustomerCount($status, $search))
+            ->withHeader("Paging-Offset", $offset)
+            ->withHeader("Paging-Limit", $limit)
+            ->withHeader("Filtering-Status", $status)
+            ->withHeader("Searching-Text", $search)
+            ->withHeader("Sorting-Order", $order)
+            ->withHeader("Sorting-OrderBy", $orderby);
+
+            $_metadata = array();
+            if ($rqst->hasHeader('show-metadata')) {
+                $_metadata["paging_total"] = getTotalCustomerCount($status, $search);
+			    $_metadata["paging_offset"] = $offset;
+		        $_metadata["paging_limit"] = $limit;
+		        $_metadata["filtering_status"] = $status;
+		        $_metadata["searching_text"] = $search;
+			    $_metadata["sorting_order"] = $order;
+			    $_metadata["sorting_orderby"] = $orderby;
+            }
+
 			if(sizeof($data["customers"]) > 0){
 				$message = "Customers fetched successfully.";
 			} else {
@@ -45,7 +57,7 @@ $app->group('/app', function () use ($user_auth) {
 			}
 			$response["data"] = $data;
 			$print = $this->data_response;
-			$rsp = $print($rsp, $response, "FetchedSuccessful", $message, "Customer Status : 0=> Inactive, 1=> Active");  
+			$rsp = $print($rsp, $response, "FetchedSuccessful", $message, "Customer Status : 0=> Inactive, 1=> Active", $_metadata);  
 			return $rsp;
 		});
 		
@@ -215,14 +227,10 @@ $app->group('/app', function () use ($user_auth) {
 });
 
 
-function getAllCustomers($offset, $limit, $status, $search, $order, $orderby){//, $convert_timezone){
+function getAllCustomers($offset, $limit, $status, $search, $order, $orderby){
 	global $mysqli;
 	$search = "%".$search."%";
-	//$convert_timezone = new convert_timezone()
-	//echo "convert string : ".convert_timezone('cstmr_created_at', 'created_at');
-	//exit;
-	
-	$query = "SELECT `cstmr_id` AS `customer_id`, `cstmr_name` AS `customer_name`, `cstmr_mobile` AS `customer_mobile`, `cstmr_email` AS `customer_email`, `cstmr_address` AS `customer_address`, `cstmr_status` AS `customer_status`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `".$orderby."` ".$order." LIMIT ?,?";
+	$query = "SELECT `cstmr_id` AS `id`, `cstmr_name` AS `name`, `cstmr_mobile` AS `mobile`, `cstmr_email` AS `email`, `cstmr_address` AS `address`, `cstmr_status` AS `status`, ".convert_timezone('cstmr_created_at', 'created_at')." FROM `tbl_customers` WHERE `cstmr_status` IN (".$status.") AND (`cstmr_name` LIKE ? OR `cstmr_address` LIKE ? OR `cstmr_mobile` LIKE ?) ORDER BY `".$orderby."` ".$order." LIMIT ?,?";
 	return $mysqli->query($query, [$search, $search, $search, $offset, $limit], "sssii")->fetchAll("assoc");
 }
 

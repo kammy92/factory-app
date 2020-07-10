@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 
 require '../vendor/autoload.php';
 require '../src/simple-mysqli.php';
+require '../src/AESUtil.php';
 require '../src/validations.php';
 
 $settings = require '../src/settings.php';

@@ -9,7 +9,8 @@ return [
         'tz_conversion_method' => 1, // 1=> Through array_walk_recursive function, 2=> Through direct query (under development)
         'jwt_signing_key' => 'fd75d2941232c9a9fec01bb6117fff0dcc45973c12ebc637a1',
         'jwt_expiry_time' => '+4 week',
-       
+        'encryption_key' => 's+FZFDjBKMUVDpu=',
+
         // Database settings
         'db' => 
             strpos($_SERVER["HTTP_HOST"], 'localhost') !== false ? array( 

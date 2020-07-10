@@ -111,7 +111,7 @@ $container['decrypt'] = function ($c) {
 };
 
 $container['data_response'] = function ($c) {
-    return function($rsp, $response, $success_type, $success_message = '', $more_info = '', $status_code = 0, $log_message = '') use ($c){
+    return function($rsp, $response, $success_type, $success_message = '', $more_info = '', $_metadata = array(), $status_code = 0, $log_message = '') use ($c){
         $success = $c['settings']['success']["$success_type"];
         $url = $c['settings']['success_info_url'];
 
@@ -132,6 +132,9 @@ $container['data_response'] = function ($c) {
         });
         
         $response["error"] = new ArrayObject();
+        if(sizeof($_metadata) > 0){
+            $response["_metadata"] = $_metadata;
+        }
         $response["data"]["success_type"] = $success["success_type"];
         $response["data"]["success_code"] = $success["success_code"];
         $response["data"]["status_code"] = $status_code != 0 ? $status_code : $success["http_code"];

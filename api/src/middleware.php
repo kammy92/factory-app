@@ -78,6 +78,25 @@ $user_auth = function ($rqst, $rsp, $next) {
     return $rsp;
 };
 
+$api_encryption = function ($rqst, $rsp, $next) {
+    try {
+        if ($rqst->hasHeader('encryption')) {
+            $api_key = $rqst->getHeader('encryption')[0];
+            
+                                    $rsp = $rsp->withHeader("X-RateLimit-Limit", $api_limit_value)
+                            ->withHeader("X-RateLimit-Remaining", $api_limit_value - $count)
+                            ->withHeader("X-RateLimit-Reset", strtotime(date('Y-m-d 00:00:00', strtotime($this->utc_time.'+1 days'))));
+
+            $rsp = $next($rqst, $rsp);
+        }
+   	} catch(Exception $e) {
+		$print=$this->error_response;
+		$rsp = $print($rsp, "MySQLException", "Error occurred in MySQL. Details: ".$e->getMessage(), $e);
+		return $rsp;
+	}
+    return $rsp;
+};
+
 $api_log = function ($rqst, $rsp, $next) {
     try {
         $api_limit = $this->get('settings')['logs']['api_limit'];
