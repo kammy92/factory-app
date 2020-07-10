@@ -66,47 +66,22 @@ $container['generate_jwt_token'] = function ($c) {
 };
 
 $container['encrypt'] = function ($c) {
-    return function($message) use ($c){
-        $key = "pk12345678912345";
-        $size = openssl_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB); 
-        $pad = $size - (strlen($message) % $size); 
-        $message = $message . str_repeat(chr($pad), $pad); 
-        $td = openssl_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, ''); 
-        $iv = openssl_create_iv (openssl_enc_get_iv_size($td), MCRYPT_RAND); 
-        openssl_generic_init($td, $key, $iv); 
-        $data = openssl_generic($td, $message); 
-        openssl_generic_deinit($td); 
-        openssl_module_close($td); 
-        $data = base64_encode($data); 
-        return $data;  
-        // $key = "pk12345678912345";
-        // $size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB); 
-        // $pad = $size - (strlen($message) % $size); 
-        // $message = $message . str_repeat(chr($pad), $pad); 
-        // $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_ECB, ''); 
-        // $iv = mcrypt_create_iv (mcrypt_enc_get_iv_size($td), MCRYPT_RAND); 
-        // mcrypt_generic_init($td, $key, $iv); 
-        // $data = mcrypt_generic($td, $message); 
-        // mcrypt_generic_deinit($td); 
-        // mcrypt_module_close($td); 
-        // $data = base64_encode($data); 
-        // return $data;  
+    return function($message) use ($c) {
+        try{
+            return bin2hex(openssl_encrypt($message, "aes-128-ecb", $c["settings"]["encryption_key"], OPENSSL_RAW_DATA));
+        } catch(Exception $e){
+            throw new Exception('EncryptionError');
+        }
     };
 };
 
 $container['decrypt'] = function ($c) {
-    return function($message) {
-        $key = "pk12345678912345";
-		$decrypted= mcrypt_decrypt(
-			MCRYPT_RIJNDAEL_128,
-			$key, 
-			base64_decode($message), 
-			MCRYPT_MODE_ECB
-		);
-		$dec_s = strlen($decrypted); 
-		$padding = ord($decrypted[$dec_s-1]); 
-		$decrypted = substr($decrypted, 0, -$padding);
-		return $decrypted;
+    return function($message) use ($c) {
+        try{
+            return openssl_decrypt(hex2bin($message), "aes-128-ecb", $c["settings"]["encryption_key"], OPENSSL_RAW_DATA); 
+        } catch(Exception $e) {
+            throw new Exception('DecryptionError');
+        }
     };
 };
 

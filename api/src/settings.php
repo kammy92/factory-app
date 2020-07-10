@@ -77,6 +77,16 @@ return [
                 'error_code' => 1234,
                 'http_code' => 401
             ],
+            'EncryptionError' => [
+                'error_type' => 'EncryptionError',
+                'error_code' => 1234,
+                'http_code' => 500
+            ],
+            'JWcryptionodeError' => [
+                'error_type' => 'DecryptionError',
+                'error_code' => 1234,
+                'http_code' => 401
+            ],
             'MySQLException' => [
                 'error_type' => 'MySQLException',
                 'error_code' => 1234,

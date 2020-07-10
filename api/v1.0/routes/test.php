@@ -124,12 +124,16 @@ $app->group('/test', function () use ($api_log) {
    
 
     $this->get('/encryption/{message}', function (Request $rqst, Response $rsp, array $args) {  
-        $response["data"] = array();
-        $response["data"]["message_original"] =  $args['message'];
-        $response["data"]["message_encrypted"] = AESUtil::encryptHexStr($args['message']);
-        // $decrypt = $this->decrypt;
-        // $response["data"]["message_decrypted"] = $decrypt($encrypt($args["message"]));
-
+        $response = array();
+        try{
+            $response["data"]["message_original"] =  $args['message'];
+            $response["data"]["message_encrypted"] = AESUtil::encryptHexStr($args['message']);
+            $response["data"]["message_decrypted"] = AESUtil::decryptHexStr(AESUtil::encryptHexStr($args['message']));
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "EncryptionError", "Error Occured while encryption. Details: ".$e->getMessage(), $e);
+            return $rsp;
+        }            
         $print = $this->data_response;
         $rsp = $print($rsp, $response, "TestSuccessful", "Encryption Successful");
         return $rsp;
@@ -137,22 +141,33 @@ $app->group('/test', function () use ($api_log) {
     
     $this->get('/encrypt/{message}', function (Request $rqst, Response $rsp, array $args) {  
         $response = array();
-        $response["message_original"] =  $args['message'];
-        $encrypt = $this->encrypt;
-        $response["message_encrypted"] = $encrypt($args['message']);
-        $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
-        $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
-        $this->logger->addInfo('in test/encrypt');
+        try{
+            $response["data"]["message_original"] =  $args['message'];
+            $encrypt = $this->encrypt;
+            $response["data"]["message_encrypted"] = $encrypt($args['message']);
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "EncryptionError", "Error Occured while encryption. Details: ".$e->getMessage(), $e);
+            return $rsp;
+        }            
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Encryption Successful");
+        return $rsp;
     });
     
     $this->get('/decrypt/{message}', function (Request $rqst, Response $rsp, array $args) {  
         $response = array();
-        $response["message_original"] =  $args['message'];
-        $decrypt = $this->decrypt;
-        $response["message_decrypted"] = $decrypt(($args["message"]));
-        $rsp->getBody()->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT));
-        $rsp->withHeader('Content-type', 'application/json')->withStatus(200);
-        $this->logger->addInfo('in test/decrypt');
+        try{
+            $response["data"]["message_original"] =  $args['message'];
+            $decrypt = $this->decrypt;
+            $response["data"]["message_decrypted"] = $decrypt(($args["message"]));
+        } catch(Exception $e) {
+            $print=$this->error_response;
+            $rsp = $print($rsp, "DecryptionError", "Error Occured while decryption. Details: ".$e->getMessage(), $e);
+            return $rsp;
+        }            
+        $print = $this->data_response;
+        $rsp = $print($rsp, $response, "TestSuccessful", "Decryption Successful");
     });
     
     $this->get('/phpinfo', function (Request $rqst, Response $rsp, array $args) {  
